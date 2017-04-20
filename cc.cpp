@@ -12,26 +12,44 @@
 #include <sstream>
 #include <iterator>
 
+const int DES = 49;
+const int ZERO = 48;
+void vec_print(const std::vector<std::vector<int>> &vec)
+{
+    int line = 0;
+    for (const auto &v : vec) {
+        std::cout << line++ << ": ";
+        for (auto num : v)
+            std::cout << num;
+        std::cout << std::endl;
+    }
+}
+
 class FindIceBlock
 {
 public:
     static void fileToVec(std::vector<std::vector<int>> &vec, const std::string &fileName)
     {
         std::ifstream inf(fileName);
+        if (!inf)
+            std::cout << "ERROR: " << fileName << " Open failed!" << std::endl;
         std::string str;
         while(std::getline(inf, str)) {
-            std::istringstream istr(str);
-            std::istream_iterator<int> in_initer(istr), leof;
-            vec.push_back(std::vector<int> (in_initer, leof));
+            vec.push_back(std::vector<int> (str.begin(), str.end() - 1));
+//            std::istringstream istr(str);
+//            std::istream_iterator<int> in_initer(istr), leof;
+//            vec.push_back(std::vector<int> (in_initer, leof));
         }
     }
 
     static void vecToFile(const std::vector<std::vector<int>> &vec, const std::string &fileName)
     {
         std::ofstream ofs(fileName);
+        if (!ofs)
+            std::cout << "ERROR: " << fileName << " Open failed!" << std::endl;
         for (const auto &v : vec) {
             for (auto num : v) {
-                ofs << num << " ";
+                ofs << num;
             }
             ofs << std::endl;
         }
@@ -57,9 +75,9 @@ public:
         //            bool[] isChecked = new bool[allIceNum]; //检查该冰点是否已被标记
         int iceOrder = 1;  //冰块顺序
         int iceOrderSum = 0;   //当前冰块序号对应的冰块大小
-        std::vector<int> currentCheckedIceIdx;   //用于存放当前检查过的像素索引
         int arrLength = width * height;
-        std::vector<int> arrLine;  //存放一维化之后的数组
+        std::vector<int> currentCheckedIceIdx(arrLength);   //用于存放当前检查过的像素索引
+        std::vector<int> arrLine(arrLength);  //存放一维化之后的数组
         int lastPoint = 0; //上一块冰的起点
 
         //将像素线性化
@@ -67,11 +85,12 @@ public:
         {
             for (int i = 0; i < width; i++)
             {
-                arrLine[j * width + i] = resultArr[i][j];
-                if (resultArr[i][j] == 1)
+                arrLine[j * width + i] = resultArr[i][j] - '0';
+                if (resultArr[i][j] == DES)
                     ++allIceNumHere;
             }
         }
+        std::cout << "-- Total: " << allIceNumHere << "---" << std::endl;
 
         while (allIceNumHere != 0)
         {
@@ -303,8 +322,13 @@ int main(void)
     FindIceBlock::fileToVec(oriVec, fin);
     std::vector<int> resSum;
     int maxIce, minIce;
-    int totalIceOrder = FindIceBlock::findIce(oriVec, resSum, maxIce, minIce);
+    FindIceBlock::findIce(oriVec, resSum, maxIce, minIce);
+//    vec_print(oriVec);
     FindIceBlock::vecToFile(oriVec, fot);
-    std::cout << totalIceOrder << std::endl;
+    std::cout << "---result---" << std::endl;
+    for (std::size_t it = 0; it < resSum.size(); ++it) {
+    std::cout << "---" << it << "---" << std::endl;
+        std::cout << it + ": " << resSum[it] << std::endl;
+    }
     return 0;
 }
