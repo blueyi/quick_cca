@@ -5,6 +5,7 @@
  * Distributed under terms of the MIT license.
  */
 
+#include "win_dutoe_TestCCA.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -314,6 +315,32 @@ public:
 
 };
 
+JNIEXPORT void JNICALL Java_win_dutoe_TestCCA_libIceAnalysis (JNIEnv *, jobject, jstring)
+{
+    std::string fin = "ori_board.txt";
+    std::string fot = "res_board.txt";
+    std::vector<std::vector<int>> oriVec;
+    FindIceBlock::fileToVec(oriVec, fin);
+    std::vector<int> resSum(2, 0);
+    int maxIce, minIce;
+    FindIceBlock::findIce(oriVec, resSum, maxIce, minIce);
+//    vec_print(oriVec);
+    FindIceBlock::vecToFile(oriVec, fot);
+    std::cout << "---result---" << std::endl;
+    int res_total = 0;
+    for (std::size_t it = 0; it < resSum.size(); ++it) {
+        if (resSum[it] > 5)
+            std::cout << it << ": " << resSum[it] << std::endl;
+        res_total += resSum[it];
+    }
+    std::cout << "---Total result sum---" << std::endl;
+    std::cout << res_total << std::endl;
+}
+
+
+
+
+/*
 int main(void)
 {
     std::string fin = "ori_board.txt";
@@ -336,3 +363,5 @@ int main(void)
     std::cout << res_total << std::endl;
     return 0;
 }
+
+*/
